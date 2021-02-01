@@ -1,0 +1,172 @@
+{
+  "nodes": [
+    {
+      "node": "AL",
+      "neighbors": ["FL", "GA", "MS", "TN"]
+    },
+    {
+      "node": "AK",
+      "neighbors": []
+    },
+    {
+      "node": "AZ",
+      "neighbors": ["CA", "NV", "NM", "UT"]
+    },
+    {
+      "node": "AR",
+      "neighbors": ["LA", "MS", "MO", "OK", "TN", "TX"]
+    },
+    {
+      "node": "CA",
+      "neighbors": ["NV", "OR"]
+    },
+    {
+      "node": "CO",
+      "neighbors": ["KS", "NE", "NM", "OK", "UT", "WY"]
+    },
+    {
+      "node": "CT",
+      "neighbors": ["MA", "NY", "RI"]
+    },
+    {
+      "node": "DE",
+      "neighbors": ["MD", "NJ", "PA"]
+    },
+    {
+      "node": "FL",
+      "neighbors": ["GA"]
+    },
+    {
+      "node": "GA",
+      "neighbors": ["NC", "SC", "TN"]
+    },
+    {
+      "node": "HI",
+      "neighbors": []
+    },
+    {
+      "node": "ID",
+      "neighbors": ["MT", "NV", "OR", "UT", "WA", "WY"]
+    },
+    {
+      "node": "IL",
+      "neighbors": ["IN", "IA", "KY", "MO", "WI"]
+    },
+    {
+      "node": "IN",
+      "neighbors": ["KY", "MI", "OH"]
+    },
+    {
+      "node": "IA",
+      "neighbors": ["MN", "MO", "NE", "SD", "WI"]
+    },
+    {
+      "node": "KS",
+      "neighbors": ["MO", "NE", "OK"]
+    },
+    {
+      "node": "KY",
+      "neighbors": ["MO", "OH", "TN", "VA", "WV"]
+    },
+    {
+      "node": "LA",
+      "neighbors": ["MS", "TX"]
+    },
+    {
+      "node": "ME",
+      "neighbors": ["NH"]
+    },
+    {
+      "node": "MD",
+      "neighbors": ["PA", "VA", "WV"]
+    },
+    {
+      "node": "MA",
+      "neighbors": ["NH", "NY", "RI", "VT"]
+    },
+    {
+      "node": "MI",
+      "neighbors": ["OH", "WI"]
+    },
+    {
+      "node": "MN",
+      "neighbors": ["ND", "SD", "WI"]
+    },
+    {
+      "node": "MS",
+      "neighbors": ["TN"]
+    },
+    {
+      "node": "MO",
+      "neighbors": ["NE", "OK", "TN"]
+    },
+    {
+      "node": "MT",
+      "neighbors": ["ND", "SD", "WY"]
+    },
+    {
+      "node": "NE",
+      "neighbors": ["SD", "WY"]
+    },
+    {
+      "node": "NV",
+      "neighbors": ["OR", "UT"]
+    },
+    {
+      "node": "NH",
+      "neighbors": ["VT"]
+    },
+    {
+      "node": "NJ",
+      "neighbors": ["NY", "PA"]
+    },
+    {
+      "node": "NM",
+      "neighbors": ["OK", "TX"]
+    },
+    {
+      "node": "NY",
+      "neighbors": ["PA", "RI", "VT"]
+    },
+    {
+      "node": "NC",
+      "neighbors": ["SC", "TN", "VA"]
+    },
+    {
+      "node": "ND",
+      "neighbors": ["SD"]
+    },
+    {
+      "node": "OH",
+      "neighbors": ["PA", "WV"]
+    },
+    {
+      "node": "OK",
+      "neighbors": ["TX"]
+    },
+    {
+      "node": "OR",
+      "neighbors": ["WA"]
+    },
+    {
+      "node": "PA",
+      "neighbors": ["WV"]
+    },
+    {
+      "node": "SD",
+      "neighbors": ["WY"]
+    },
+    {
+      "node": "TN",
+      "neighbors": ["VA"]
+    },
+    {
+      "node": "UT",
+      "neighbors": ["WY"]
+    },
+    {
+      "node": "VA",
+      "neighbors": ["WV"]
+    }
+  ]
+}
