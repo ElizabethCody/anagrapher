@@ -14,22 +14,21 @@ final class Pather {
       Stack<String> path = [] as Stack
 
       for(node in graph.nodes()) {
-         buildPaths(depth, [node] as Stack, [node] as Set, fullPaths)
+         buildPaths(depth, [node] as Stack, fullPaths)
       }
 
       fullPaths
    }
 
-   private void buildPaths(int depth, Stack<String> path, Set<String> seen, Set<Path> fullPaths) {
+   private void buildPaths(int depth, Stack<String> path, Set<Path> fullPaths) {
       if(path.size() == depth) {
          fullPaths << new Path(path as String[])
       } else {
          for(node in graph.adjacentNodes(path.peek())) {
-            if(node !in seen) {
+            if(node !in path) {
                path << node
-               seen << node
 
-               buildPaths(depth, path, seen, fullPaths)
+               buildPaths(depth, path, fullPaths)
 
                path.pop()
             }
