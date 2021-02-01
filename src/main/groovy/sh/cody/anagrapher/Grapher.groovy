@@ -18,7 +18,7 @@ final class Grapher {
       assert 'nodes' in mgraph: 'Must be a valid graph JSON.'
 
       for(node in mgraph['nodes']) {
-         assert 'node' in node && 'neighbors' in node: 'Invalid node definition.'
+         assert 'node' in node: 'Invalid node definition.'
 
          def nodeName = node['node']
          updateStats(nodeName)
