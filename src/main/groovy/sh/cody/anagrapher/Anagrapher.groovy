@@ -90,7 +90,6 @@ final class Anagrapher {
          def outstream = options.o.newPrintWriter()
 
          for(solution in solutions) {
-
             outstream.println("$solution.key -> ${solution.value.join(', ')}")
          }
 
