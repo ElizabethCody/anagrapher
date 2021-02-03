@@ -7,8 +7,6 @@ final class Anagrammer implements Runnable {
    private final Closure finished
    final Map<Path, Set<String>> solutions = [:]
 
-   // TODO: replace the countdown latch call with a closure callback
-
    Anagrammer(Set<Path> paths, Set<String> words, boolean insensitive, Closure finished) {
       this.paths = paths
       this.words = words
