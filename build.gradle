@@ -12,6 +12,9 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+
+    // Used for shadowJar (fat JAR) task
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 repositories {
@@ -27,7 +30,4 @@ dependencies {
     implementation 'com.google.guava:guava:29.0-jre'
 }
 
-application {
-    // Define the main class for the application.
-    mainClass = 'sh.cody.anagrapher.Anagrapher'
-}
+mainClassName = 'sh.cody.anagrapher.Anagrapher'
