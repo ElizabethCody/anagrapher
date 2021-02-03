@@ -25,6 +25,19 @@ Construct and solve anagrams from a graph.
 If no command-line parameters are supplied, Anagrapher will default to solving NPR's four-state postal abbreviation
 challenge.
 
+## Build
+For building, the `shadowJar` task in Gradle is recommended.
+
+Linux, BSD, macOS, etc:
+```
+$ ./gradlew shadowJar
+```
+
+Windows and DOS:
+```
+> gradlew.bat shadowJar
+```
+
 ## Copyright
 Anagrapher is protected by copyright and is licensed under the MIT License, see `LICENSE.txt` for more details.
 
