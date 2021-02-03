@@ -2,10 +2,56 @@ package sh.cody.anagrapher
 
 import groovy.cli.picocli.CliBuilder
 
-import java.util.concurrent.CountDownLatch
-
 final class Anagrapher {
+   private final int depth, threads
+   private final boolean insensitive
+   private final InputStream graphStream, wordStream
+
+   Anagrapher(int depth, int threads, boolean insensitive, InputStream graphStream, InputStream wordStream) {
+      this.depth = depth
+      this.threads = threads
+      this.insensitive = insensitive
+      this.graphStream = graphStream
+      this.wordStream = wordStream
+   }
+
+   Map<Path, Set<String>> getSolutions(PrintStream log) {
+      log?.println('Graphing...')
+      def grapher = new Grapher().addNodesFromJson(graphStream)
+      def graph = grapher.graph
+      def stats = grapher.nodeStats
+      log?.println("Graph has ${graph.nodes().size()} connected node(s).")
+
+      log?.println("Finding path(s) of length $depth...")
+      def pather = new Pather(graph)
+      def paths = pather.findPaths(depth)
+      log?.println("Found ${paths.size()} unique path(s).")
+
+      log?.println('Finding words...')
+      def wordsBuilder = new Words(stats.min * depth, stats.max * depth, insensitive, stats.charset)
+      def words = wordsBuilder.getEligibleWords(wordStream)
+      log?.println("Found ${words.size()} eligible word(s).")
+
+      log?.println("Dispatching $threads anagram solver(s)...")
+      def dispatcher = new AnagrammerDispatcher(words, paths, insensitive)
+      def solutions = dispatcher.dispatchAnagrammers(threads)
+      log?.println('Anagram solving complete.')
+
+      solutions
+   }
+
+   private static InputStream openInputFile(File file, String resPrefix) {
+      def str = file as String
+      if(str[0] == ':') {
+         Thread.currentThread().contextClassLoader.getResourceAsStream("$resPrefix/${str[1..-1]}")
+      } else {
+         new FileInputStream(file)
+      }
+   }
+
    static void main(String... args) {
+      def timeStart = System.currentTimeMillis()
+
       def cli = new CliBuilder(name: 'anagrapher', header: 'Construct and solve anagrams from a graph.')
       cli.h(longOpt: 'help', 'show this message and exit')
       cli.d(argName: 'depth', type: int, longOpt: 'depth', required: true, defaultValue: '4', args: 1, 'set graph traversal depth')
@@ -13,6 +59,7 @@ final class Anagrapher {
       cli.t(argName: 'threads', type: int, longOpt: 'threads', required: false, args: 1, 'force worker thread count')
       cli.w(argName: 'word list', type: File, longOpt: 'word-list', required: true, defaultValue: ':english.txt', args: 1, 'path to valid word list')
       cli.g(argName: 'graph', type: File, longOpt: 'graph', required: true, defaultValue: ':usa.json', args: 1, 'path to graph file')
+      cli.o(argName: 'out', type: File, longOpt: 'output', required: true, defaultValue: 'solutions.txt', args: 1, 'path to output file')
 
       def options = cli.parse(args)
 
@@ -21,100 +68,39 @@ final class Anagrapher {
          return
       }
 
-      def threads = options.t ?: Runtime.getRuntime().availableProcessors()
-      def graphSource = options.g
-      def graphPath = graphSource as String
-
-      if(graphPath[0] == ':') {
-         graphSource = Thread.currentThread().contextClassLoader.getResourceAsStream("graphs/${graphPath[1..-1]}")
-      }
+      def anagrapher = new Anagrapher(options.d, options.t ?: Runtime.getRuntime().availableProcessors(), options.i,
+            openInputFile(options.g, 'graphs'), openInputFile(options.w, 'words')
+      )
 
       System.err.println('Anagrapher 1.0.0-devel by Maxwell Cody <maxwell@cody.sh>')
-      System.err.println("Desired threads: ${threads}; Insensitivity: ${options.i}")
+      System.err.println("Desired threads: $anagrapher.threads; Case-insensitivity: $anagrapher.insensitive")
       System.err.println()
 
-      long startTime = System.currentTimeMillis()
+      try {
+         def solutions = anagrapher.getSolutions(System.err)
 
-      System.err.println("Graphing $graphPath...")
-      def grapher = new Grapher()
-      grapher.addNodesFromJson(graphSource)
-      def graph = grapher.graph
-      System.err.println("The graph has ${graph.nodes().size()} connected nodes. (Min: $grapher.min; Max: $grapher.max)")
+         System.err.println("Found ${solutions.size()} path(s) with at least one valid solution.")
+         System.err.println("Saving solution(s) to $options.o...")
 
-      System.err.println("Finding paths of length ${options.d}...")
-      def pather = new Pather(graph)
-      def paths = pather.findPaths(options.d) as List<Path>
-      System.err.println("Found ${paths.size()} unique paths.")
-
-      def wordSource = options.w
-      def wordPath = wordSource as String
-
-      if(wordPath[0] == ':') {
-         wordSource = Thread.currentThread().contextClassLoader.getResourceAsStream("words/${wordPath[1..-1]}")
-      } else {
-         wordSource = new FileInputStream(wordSource)
-      }
-
-      System.err.println("Filtering word list ${wordPath}...")
-      Set<String> words = [] as Set
-      def charset = grapher.charset
-
-      try(wordSource) {
-         def reader = new BufferedReader(new InputStreamReader(wordSource))
-         String buffer = null
-outer:   while((buffer = reader.readLine()) != null) {
-            if(buffer.length() <= grapher.max * options.d && buffer.length() >= grapher.min * options.d) {
-               for(ch in buffer) {
-                  if(options.i) {
-                     if(!charset.contains(ch) && !charset.contains(ch.toUpperCase()) && !charset.contains(ch.toLowerCase())) {
-                        continue outer
-                     }
-                  } else {
-                     if(!charset.contains(ch)) {
-                        continue outer
-                     }
-                  }
-               }
-
-               if(options.i) {
-                  words << buffer.toUpperCase()
-               } else {
-                  words << buffer
-               }
-            }
+         // overwrite existing file
+         if(options.o.exists()) {
+            options.o.delete()
          }
-      }
-      System.err.println("${words.size()} eligible words found.")
 
-      List<Path>[] pathss = new List[threads]
-      while(paths.size() > 0) {
-         for(int i = 0; i < threads; ++i) {
-            if(paths.size() == 0) break
-            pathss[i] ?= []
-            pathss[i].add(paths.pop())
+         def outstream = options.o.newPrintWriter()
+
+         for(solution in solutions) {
+
+            outstream.println("$solution.key -> ${solution.value.join(', ')}")
          }
-      }
 
-      System.err.println('Starting anagram solvers...')
-      def latch = new CountDownLatch(threads)
-      def anagrammers = [] as List<Anagrammer>
-      for(pathList in pathss) {
-         def anagrammer = new Anagrammer(pathList, words, latch, options.i)
-         anagrammers << anagrammer
-         new Thread(anagrammer).start()
-      }
-      latch.await()
-      System.err.println('Anagram solving finished.')
-      System.err.flush()
-      for(anagrammer in anagrammers) {
-         for(entry in anagrammer.solutions.entrySet()) {
-            println "$entry.key -> ${entry.value.join(', ')}"
-         }
-      }
-      System.out.flush()
+         outstream.close()
 
-
-      System.err.println()
-      System.err.println("Anagrapher has finished in ${(System.currentTimeMillis() - startTime) / 1000.0} seconds.")
+         System.err.println("Solution(s) saved to $options.o.")
+         System.err.println("Anagrapher has finished in ${(System.currentTimeMillis() - timeStart) / 1000.0} second(s).")
+      } catch(exception) {
+         exception.printStackTrace()
+         System.exit(1)
+      }
    }
 }

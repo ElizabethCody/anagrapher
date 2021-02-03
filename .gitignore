@@ -6,3 +6,6 @@ build/
 
 # Ignore IntelliJ files
 .idea/
+
+# Ignore project default output file
+solutions.txt

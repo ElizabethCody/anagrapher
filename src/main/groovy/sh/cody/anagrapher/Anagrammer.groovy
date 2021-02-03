@@ -1,19 +1,19 @@
 package sh.cody.anagrapher
 
-import java.util.concurrent.CountDownLatch
-
 final class Anagrammer implements Runnable {
-   private final List<Path> paths
+   private final Set<Path> paths
    private final Set<String> words
-   private final CountDownLatch latch
    private final boolean insensitive
+   private final Closure finished
    final Map<Path, Set<String>> solutions = [:]
 
-   Anagrammer(List<Path> paths, Set<String> words, CountDownLatch latch, boolean insensitive) {
+   // TODO: replace the countdown latch call with a closure callback
+
+   Anagrammer(Set<Path> paths, Set<String> words, boolean insensitive, Closure finished) {
       this.paths = paths
       this.words = words
-      this.latch = latch
       this.insensitive = insensitive
+      this.finished = finished
    }
 
    private void anagram(Path current, String left, String right) {
@@ -35,6 +35,6 @@ final class Anagrammer implements Runnable {
          anagram(path, '', path.compactString())
       }
 
-      latch.countDown()
+      finished?.call(this)
    }
 }

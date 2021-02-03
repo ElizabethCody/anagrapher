@@ -48,16 +48,8 @@ final class Grapher {
       }
    }
 
-   long getMin() {
-      min
-   }
-
-   long getMax() {
-      max
-   }
-   
-   Set<Character> getCharset() {
-      ImmutableSet.copyOf(charset)
+   NodeStats getNodeStats() {
+      new NodeStats(min, max, ImmutableSet.copyOf(charset))
    }
 
    Graph<String> getGraph() {
