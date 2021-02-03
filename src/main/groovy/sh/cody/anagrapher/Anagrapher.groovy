@@ -72,7 +72,7 @@ final class Anagrapher {
             openInputFile(options.g, 'graphs'), openInputFile(options.w, 'words')
       )
 
-      System.err.println('Anagrapher 1.0.0-devel by Maxwell Cody <maxwell@cody.sh>')
+      System.err.println('Anagrapher 1.0.0 by Maxwell Cody <maxwell@cody.sh>')
       System.err.println("Desired threads: $anagrapher.threads; Case-insensitivity: $anagrapher.insensitive")
       System.err.println()
 
