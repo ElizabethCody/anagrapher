@@ -5,13 +5,18 @@ import com.google.common.graph.*
 import groovy.json.JsonSlurper
 
 final class Grapher {
-   private final MutableGraph<String> graph = GraphBuilder.undirected().build()
+   private MutableGraph<String> graph = GraphBuilder.undirected().build()
 
    // these values may be used to optimize the word list
    private int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE
    private final Set<Character> charset = [] as Set<Character>
 
+   private Graph finalGraph = null
+   private NodeStats finalStats = null
+
    Grapher addNodesFromJson(source) {
+      assert finalGraph == null && finalStats == null: 'Graph has already been built.'
+
       def slurper = new JsonSlurper()
       def mgraph = slurper.parse(source)
 
@@ -49,10 +54,13 @@ final class Grapher {
    }
 
    NodeStats getNodeStats() {
-      new NodeStats(min, max, ImmutableSet.copyOf(charset))
+      finalStats ?= new NodeStats(min, max, ImmutableSet.copyOf(charset))
+      finalStats
    }
 
    Graph<String> getGraph() {
-      ImmutableGraph.copyOf(graph)
+      finalGraph ?= ImmutableGraph.copyOf(graph)
+      graph = null // We've already made a copy, so don't keep the mutable version around
+      finalGraph
    }
 }
